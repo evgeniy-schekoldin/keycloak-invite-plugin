@@ -53,7 +53,7 @@ public class EmailListener implements EventListenerProvider {
             return;
         }
 
-        String userId = resourcePath.split("/")[1];
+        String userId = split[1];
         KeycloakContext context = session.getContext();
         RealmModel realm = context.getRealm();
         UserModel user = session.users().getUserById(realm, userId);

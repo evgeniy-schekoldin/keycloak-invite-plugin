@@ -19,7 +19,8 @@ import java.util.Set;
 public class EmailListenerFactory implements EventListenerProviderFactory {
 
     public static final String ID = "email-listener";
-    private static final Logger logger = Logger.getLogger(EmailListener.class);
+    private static final String INVITE_ATTR_NAME = "_invite_to";
+    private static final Logger logger = Logger.getLogger(EmailListenerFactory.class);
 
     //public EmailListenerFactory() {
     //    System.out.println("🔥 FACTORY LOADED");
@@ -61,7 +62,7 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
                                 return;
                             }
 
-                            String attrName = "_invite_to";
+                            String attrName = INVITE_ATTR_NAME;
                             boolean exists = config.getAttributes() != null &&
                                     config.getAttributes().stream().anyMatch(a -> attrName.equals(a.getName()));
 

@@ -103,6 +103,7 @@ public class EmailListener implements EventListenerProvider {
             template.process(data, writer);
         } catch (Exception e) {
             logger.error("Failed to render email template", e);
+            return;
         }
 
         EmailSenderProvider sender = session.getProvider(EmailSenderProvider.class);
@@ -110,7 +111,6 @@ public class EmailListener implements EventListenerProvider {
         String subject = "User created";
         String textBody = "";
         String htmlBody = writer.toString();
-        ;
 
         try {
             sender.send(

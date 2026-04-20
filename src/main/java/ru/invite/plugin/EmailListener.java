@@ -70,6 +70,10 @@ public class EmailListener implements EventListenerProvider {
 
         ClientModel client = realm.getClientByClientId("account");
 
+        if (client == null) {
+            return;
+        }
+
         ExecuteActionsActionToken token = new ExecuteActionsActionToken(
                 userId,
                 user.getEmail(),

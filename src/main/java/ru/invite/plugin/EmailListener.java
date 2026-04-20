@@ -43,13 +43,13 @@ public class EmailListener implements EventListenerProvider {
 
         String resourcePath = event.getResourcePath();
 
-        if (resourcePath == null || !resourcePath.startsWith("users/")) {
+        if (resourcePath == null) {
             return;
         }
 
         String[] split = resourcePath.split("/");
 
-        if (split.length < 2) {
+        if (split.length < 2 || !split[0].equals("users")) {
             return;
         }
 
@@ -60,7 +60,7 @@ public class EmailListener implements EventListenerProvider {
 
         if (user == null) return;
 
-        String inviteEmail = user.getFirstAttribute("_invite_to");
+        String inviteEmail = user.getFirstAttribute(EmailListenerFactory.INVITE_ATTR_NAME);
 
         if (inviteEmail == null || inviteEmail.isEmpty()) {
             return;

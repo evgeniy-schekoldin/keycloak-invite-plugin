@@ -15,11 +15,12 @@ import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Map;
 
 public class EmailListenerFactory implements EventListenerProviderFactory {
 
     public static final String ID = "email-listener";
-    private static final String INVITE_ATTR_NAME = "_invite_to";
+    static final String INVITE_ATTR_NAME = "_invite_to";
     private static final Logger logger = Logger.getLogger(EmailListenerFactory.class);
 
     //public EmailListenerFactory() {
@@ -78,10 +79,7 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
                             permissions.setView(Set.of("admin"));
                             permissions.setEdit(Set.of("admin"));
                             attribute.setPermissions(permissions);
-
-                            if (config.getAttributes() == null) {
-                                config.setAttributes(new ArrayList<>());
-                            }
+                            attribute.setValidations(Map.of("email", Map.of()));
 
                             config.getAttributes().add(attribute);
                             provider.setConfiguration(config);

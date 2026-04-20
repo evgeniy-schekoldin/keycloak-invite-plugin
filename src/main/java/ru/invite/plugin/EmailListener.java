@@ -58,7 +58,9 @@ public class EmailListener implements EventListenerProvider {
         RealmModel realm = context.getRealm();
         UserModel user = session.users().getUserById(realm, userId);
 
-        if (user == null) return;
+        if (user == null) {
+            return;
+        }
 
         String inviteEmail = user.getFirstAttribute(EmailListenerFactory.INVITE_ATTR_NAME);
 
@@ -66,14 +68,13 @@ public class EmailListener implements EventListenerProvider {
             return;
         }
 
-        List<String> actions = List.of(UserModel.RequiredAction.UPDATE_PASSWORD.name());
         ClientModel client = realm.getClientByClientId("account");
 
         ExecuteActionsActionToken token = new ExecuteActionsActionToken(
                 userId,
                 user.getEmail(),
                 Time.currentTime() + 600,
-                actions,
+                List.of(UserModel.RequiredAction.UPDATE_PASSWORD.name()),
                 null,
                 client.getClientId()
         );

@@ -5,6 +5,7 @@ import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.RealmModel;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.representations.userprofile.config.UPAttribute;
@@ -13,7 +14,6 @@ import org.keycloak.representations.userprofile.config.UPConfig;
 import org.keycloak.userprofile.UserProfileProvider;
 import org.jboss.logging.Logger;
 
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.Map;
 
@@ -22,10 +22,6 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
     public static final String ID = "email-listener";
     static final String INVITE_ATTR_NAME = "_invite_to";
     private static final Logger logger = Logger.getLogger(EmailListenerFactory.class);
-
-    //public EmailListenerFactory() {
-    //    System.out.println("🔥 FACTORY LOADED");
-    //}
 
     @Override
     public EventListenerProvider create(KeycloakSession session) {
@@ -45,7 +41,7 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
     @Override
     public void postInit(KeycloakSessionFactory factory) {
         factory.register(event -> {
-            if (event instanceof PostMigrationEvent) {
+            if (event instanceof PostMigrationEvent ) {
                 KeycloakModelUtils.runJobInTransaction(factory, session -> {
                     session.realms().getRealmsStream().forEach(realm -> {
                         try {
@@ -95,6 +91,10 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
 
     @Override
     public void close() {
+
+    }
+
+    private void registerAttribute(KeycloakSession session, RealmModel realm) {
 
     }
 }

@@ -97,7 +97,7 @@ public class EmailListener implements EventListenerProvider {
         StringWriter writer = new StringWriter();
 
         try {
-            cfg.setDirectoryForTemplateLoading(new File("/opt/keycloak/themes/"));
+            cfg.setDirectoryForTemplateLoading(new File("/opt/keycloak/themes/invite"));
             cfg.setDefaultEncoding("UTF-8");
 
             Template template = cfg.getTemplate("welcome.ftl");

@@ -5,7 +5,6 @@ import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.RealmModel;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.representations.userprofile.config.UPAttribute;
@@ -16,12 +15,17 @@ import org.jboss.logging.Logger;
 
 import java.util.Set;
 import java.util.Map;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 public class EmailListenerFactory implements EventListenerProviderFactory {
 
     public static final String ID = "email-listener";
     static final String INVITE_ATTR_NAME = "_invite_to";
     private static final Logger logger = Logger.getLogger(EmailListenerFactory.class);
+    private static final File TEMPLATE_DIR = new File("/opt/keycloak/themes/invite/");
+    private static final String[] TEMPLATES = {"welcome.ftl", "template.ftl"};
 
     @Override
     public EventListenerProvider create(KeycloakSession session) {
@@ -31,6 +35,18 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
     @Override
     public void init(Config.Scope config) {
 
+        TEMPLATE_DIR.mkdir();
+
+        for (String template : TEMPLATES) {
+            File templateFile = new File(TEMPLATE_DIR, template);
+            if (!templateFile.exists()) {
+                try (InputStream in = EmailListenerFactory.class.getResourceAsStream("/templates/" + template)) {
+                    Files.copy(in, templateFile.toPath());
+                } catch (java.io.IOException e) {
+                    logger.error("Failed to create templates", e);
+                }
+            }
+        }
     }
 
     @Override
@@ -40,6 +56,7 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
 
     @Override
     public void postInit(KeycloakSessionFactory factory) {
+
         factory.register(event -> {
             if (event instanceof PostMigrationEvent ) {
                 KeycloakModelUtils.runJobInTransaction(factory, session -> {
@@ -93,5 +110,5 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
     public void close() {
 
     }
-    
+
 }

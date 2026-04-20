@@ -93,8 +93,5 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
     public void close() {
 
     }
-
-    private void registerAttribute(KeycloakSession session, RealmModel realm) {
-
-    }
+    
 }

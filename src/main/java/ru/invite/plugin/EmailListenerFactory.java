@@ -18,9 +18,8 @@ import java.util.Map;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.io.IOException;
 
 public class EmailListenerFactory implements EventListenerProviderFactory {
 
@@ -45,7 +44,7 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
             if (!templateFile.exists()) {
                 try (InputStream in = EmailListenerFactory.class.getResourceAsStream("/templates/" + template)) {
                     Files.copy(in, templateFile.toPath());
-                } catch (java.io.IOException e) {
+                } catch (IOException e) {
                     logger.error("Failed to create templates", e);
                 }
             }
@@ -91,16 +90,15 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
                                         return;
                                     }
 
-                                    String attrName = INVITE_ATTR_NAME;
                                     boolean exists = config.getAttributes() != null &&
-                                            config.getAttributes().stream().anyMatch(a -> attrName.equals(a.getName()));
+                                            config.getAttributes().stream().anyMatch(a -> INVITE_ATTR_NAME.equals(a.getName()));
 
                                     if (exists) {
                                         return;
                                     }
 
                                     UPAttribute attribute = new UPAttribute();
-                                    attribute.setName(attrName);
+                                    attribute.setName(INVITE_ATTR_NAME);
                                     attribute.setDisplayName("Invite to");
 
                                     UPAttributePermissions permissions = new UPAttributePermissions();

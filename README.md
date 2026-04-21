@@ -1,3 +1,5 @@
-This plugin for Keycloak adds user attribute "Invite to" at first startup and then can be used to send Invitation-like E-mails (UPDATE PASSWORD Keycloak required action) to custom address, provided in this field by admin.
-It can be usefull for new hire onboarding-flow.
+This Keycloak plugin adds the ability to send invitation-like emails to custom address.
+It can be used for the onboarding flow of new hires.
 
+After installation, it creates "Invite to" user attribute, registers itself as event listener in realm settings, and
+creates Email template in "/opt/keycloak/themes/invite".

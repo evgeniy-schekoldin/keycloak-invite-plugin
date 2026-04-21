@@ -18,6 +18,9 @@ import java.util.Map;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class EmailListenerFactory implements EventListenerProviderFactory {
 
@@ -58,49 +61,61 @@ public class EmailListenerFactory implements EventListenerProviderFactory {
     public void postInit(KeycloakSessionFactory factory) {
 
         factory.register(event -> {
-            if (event instanceof PostMigrationEvent ) {
+            logger.infof("Event: %s", event);
+            if (event instanceof PostMigrationEvent) {
+
                 KeycloakModelUtils.runJobInTransaction(factory, session -> {
-                    session.realms().getRealmsStream().forEach(realm -> {
-                        try {
+                    session.realms().getRealmsStream()
+                            .filter(realm -> !realm.getName().equals("master"))
+                            .forEach(realm -> {
 
-                            session.getContext().setRealm(realm);
-                            UserProfileProvider provider = session.getProvider(UserProfileProvider.class);
+                                Set<String> listeners = new HashSet<>(realm.getEventsListenersStream().toList());
 
-                            if (provider == null) {
-                                return;
-                            }
+                                if (!listeners.contains(ID)) {
+                                    listeners.add(ID);
+                                    realm.setEventsListeners(listeners);
+                                }
 
-                            UPConfig config = provider.getConfiguration();
+                                try {
 
-                            if (config == null) {
-                                return;
-                            }
+                                    session.getContext().setRealm(realm);
+                                    UserProfileProvider provider = session.getProvider(UserProfileProvider.class);
 
-                            String attrName = INVITE_ATTR_NAME;
-                            boolean exists = config.getAttributes() != null &&
-                                    config.getAttributes().stream().anyMatch(a -> attrName.equals(a.getName()));
+                                    if (provider == null) {
+                                        return;
+                                    }
 
-                            if (exists) {
-                                return;
-                            }
+                                    UPConfig config = provider.getConfiguration();
 
-                            UPAttribute attribute = new UPAttribute();
-                            attribute.setName(attrName);
-                            attribute.setDisplayName("Invite to");
+                                    if (config == null) {
+                                        return;
+                                    }
 
-                            UPAttributePermissions permissions = new UPAttributePermissions();
-                            permissions.setView(Set.of("admin"));
-                            permissions.setEdit(Set.of("admin"));
-                            attribute.setPermissions(permissions);
-                            attribute.setValidations(Map.of("email", Map.of()));
+                                    String attrName = INVITE_ATTR_NAME;
+                                    boolean exists = config.getAttributes() != null &&
+                                            config.getAttributes().stream().anyMatch(a -> attrName.equals(a.getName()));
 
-                            config.getAttributes().add(attribute);
-                            provider.setConfiguration(config);
+                                    if (exists) {
+                                        return;
+                                    }
 
-                        } catch (Exception e) {
-                            logger.error("Failed to edit realm settings", e);
-                        }
-                    });
+                                    UPAttribute attribute = new UPAttribute();
+                                    attribute.setName(attrName);
+                                    attribute.setDisplayName("Invite to");
+
+                                    UPAttributePermissions permissions = new UPAttributePermissions();
+                                    permissions.setView(Set.of("admin"));
+                                    permissions.setEdit(Set.of("admin"));
+                                    attribute.setPermissions(permissions);
+                                    attribute.setValidations(Map.of("email", Map.of()));
+
+                                    config.getAttributes().add(attribute);
+                                    provider.setConfiguration(config);
+
+                                } catch (Exception e) {
+                                    logger.error("Failed to edit realm settings", e);
+                                }
+                            });
                 });
             }
         });
